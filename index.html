@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl">
 
 <head>
 	<meta charset="utf-8">
@@ -21,347 +21,420 @@
 	<!-- Theme used for syntax highlighting of code -->
 	<link rel="stylesheet" href="plugin/highlight/monokai.css">
 	<style>
-		.row {
-			display: flex;
-		}
+    /* Delikatne utility do układu i czytelności */
+    .poplist li { margin:.35rem 0; }
+    .small { font-size:.9rem; opacity:.9; }
+    .tiny  { font-size:.8rem; opacity:.8; }
 
-		.column {
-			flex: 50%;
-			padding: 10px;
-		}
-	</style>
-	<style>
-		.small-font pre {
-			font-size: 13px;
-			/* Zmniejszenie czcionki */
-			margin-left: 0;
-			/* Usunięcie marginesu z lewej strony */
-			white-space: pre-wrap;
-			/* Zapobieganie przepełnieniu tekstu */
-		}
-	</style>
+    /* Kod zawsze mieści się na slajdzie */
+    pre.code-box { margin:0; max-height: 52vh; overflow:auto; }
+    pre.code-box code { font-size: clamp(.85rem, 1.5vw, 1.05rem); line-height:1.35; }
 
+    /* Dwukolumnowy układ, który ładnie skaluje się do pionu */
+    .grid-2 {
+      display:grid; gap:1rem; align-items:start;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    }
+    @media (max-width:1200px){
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Delikatny „popup” na bieżącym fragmencie */
+    .reveal .fragment { transition: transform .25s ease, opacity .25s ease; }
+    .reveal .fragment.current-fragment { transform: scale(1.06); }
+
+    /* Tytuły rozdziałów trochę większe */
+    .chapter-title { margin-bottom:.5rem; }
+  </style>
 </head>
-
 <body>
+<div class="reveal">
+  <div class="slides">
+    <section data-background-gradient="linear-gradient(45deg, #3a3a7a, #6754e8)">
+      <h1>Programowanie obiektowe w Pythonie</h1>
+      <p class="fragment">Definicje • Przykłady • Dobre praktyki • (ABC, iteratory, wzorce)</p>
+    </section>
 
-	<div class="reveal">
+    <section data-background-gradient="linear-gradient(45deg, #2f3542, #57606f)">
+      <section>
+        <h2 class="chapter-title">1. Wszystko jest obiektem</h2>
+        <p class="fragment">W Pythonie każda wartość to <b>obiekt</b> (ma typ, atrybuty i metody).</p>
+        <p class="fragment">Obiekt = <b>stan</b> (atrybuty) + <b>zachowanie</b> (metody).</p>
+      </section>
+      <section>
+        <h3>Przykład</h3>
+        <pre class="code-box"><code class="language-python">
+x = 5
+print(type(x))   # <class 'int'>
 
-		<!-- Any section element inside of this container is displayed as a slide -->
-		<div class="slides">
+s = "hello"
+print(type(s))   # <class 'str'>
+        </code></pre>
+        <p class="small fragment">Liczby, napisy, listy, funkcje, klasy — wszystko to obiekty.</p>
+      </section>
+    </section>
+    <section data-background-gradient="linear-gradient(45deg, #1e272e, #0fb9b1)">
+      <section>
+        <h2 class="chapter-title">2. Klasy i obiekty</h2>
+        <p class="fragment"><b>Klasa</b> — definicja typu (jak ma wyglądać i działać obiekt).</p>
+        <p class="fragment"><b>Obiekt</b> — konkretny egzemplarz klasy (ze swoim stanem).</p>
+      </section>
+      <section>
+        <h3>Definicja i tworzenie instancji</h3>
+        <div class="grid-2">
+          <div>
+            <ul class="poplist">
+              <li class="fragment"><b>__init__</b> — konstruktor; przygotowuje świeży obiekt.</li>
+              <li class="fragment"><b>self</b> — bieżąca instancja (jak this w innych językach).</li>
+              <li class="fragment">Atrybuty przypisujemy jako <code>self.nazwa = wartość</code>.</li>
+            </ul>
+          </div>
+          <div>
+            <pre class="code-box fragment"><code class="language-python">
+class Samochod:
+    def __init__(self, marka, model):
+        self.marka = marka
+        self.model = model
 
+auto = Samochod("Toyota", "Camry")
+print(auto.marka)  # Toyota
+            </code></pre>
+          </div>
+        </div>
+      </section>
+    </section>
 
-			<section data-background-gradient="linear-gradient(45deg, #33, #6754e8)">
-				<h1>Programowanie obiektowe w Pythonie</h1>
-			</section>
+    <section data-background-gradient="linear-gradient(45deg, #2d3436, #00cec9)">
+      <section>
+        <h2 class="chapter-title">3. Atrybuty i metody</h2>
+        <p class="fragment"><b>Atrybut</b> — dane przechowywane w obiekcie.</p>
+        <p class="fragment"><b>Metoda</b> — funkcja wywoływana na obiekcie (operuje na jego stanie).</p>
+      </section>
+      <section>
+        <div class="grid-2">
+          <div>
+            <ul class="poplist">
+              <li class="fragment">Metody mają <code>self</code> jako pierwszy argument.</li>
+              <li class="fragment">Modyfikują stan przez <code>self.coś = ...</code>.</li>
+              <li class="fragment">Zwracają wynik (opcjonalnie).</li>
+            </ul>
+          </div>
+          <div>
+            <pre class="code-box fragment"><code class="language-python">
+class Kalkulator:
+    def __init__(self):
+        self.wynik = 0
 
-			<section data-background-gradient="linear-gradient(45deg, #33, #6754e8)">
-				<h2>Wszystko jest obiektem</h2>
-				<p>
-					Programowanie obiektowe (OOP) to paradygmat programowania, który opiera się na koncepcji "obiektów"
-					- strukturze, która
-					zawiera dane w postaci pól, znane również jako atrybuty, oraz kod w postaci procedur, znanych jako
-					metody. W Pythonie
-					wszystko jest obiektem!
-				</p>
-			</section>
-			<section>
-				<h2>Podstawowe koncepcje</h2>
-				<section>
-					<p>Klasy i obiekty</p>
-					<small>Klasa to szablon do tworzenia obiektów.</small>
-					<small>Obiekt to instancja klasy, posiadająca unikalne atrybuty i metody.</small>
-					<pre><code data-trim class="python">class Samochod:
-		def __init__(self, marka, model):
-				self.marka = marka
-				self.model = model
+    def dodaj(self, x):
+        self.wynik += x
+        return self.wynik
 
-samochod1 = Samochod("Toyota", "Camry")
-</code></pre>
-					<small>
-						<b>self</b> wskazuje na instancję obiektu, na którym metoda jest wywoływana. Jest to sposób, aby
-						metoda wiedziała, na którym
-						konkretnym obiekcie operuje. Kiedy wywoływana jest metoda na instancji klasy, Python
-						automatycznie przekazuje tę instancję
-						jako pierwszy argument do metody. W tym przypadku nazwa <b>self</b> jest tylko konwencją, a nie
-						wymogiem.
-					</small>
-				</section>
-				<section>
-					<p>Atrybuty i metody</p>
-					<small>Atrybuty to zmienne przypisane do obiektu.</small>
-					<small>Metody to funkcje związane z obiektem.</small>
-					<pre><code data-trim class="python">class Kalkulator:
-		wynik = 0
-						
-		def dodaj(self, x):
-				self.wynik += y
-				return self.wynik
+k = Kalkulator()
+print(k.dodaj(3))  # 3
+            </code></pre>
+          </div>
+        </div>
+      </section>
+    </section>
 
-kalk = Kalkulator()
-wynik = kalk.dodaj(3)
-								</code></pre>
-				</section>
-			</section>
-			<section>
-				<h2>Dziedziczenie</h2>
-				<section>
-					<p>Tworzenie nowej klasy na podstawie istniejącej.</p>
-					<pre><code data-trim class="python">class Pojazd:
-		def ruszaj(self):
-				print("Pojazd rusza.")
+    <section data-background-gradient="linear-gradient(45deg, #222f3e, #ee5253)">
+      <section>
+        <h2 class="chapter-title">4. Dziedziczenie</h2>
+        <p class="fragment">Klasa potomna przejmuje kod klasy bazowej i może go rozszerzać lub nadpisywać.</p>
+        <p class="fragment">Ułatwia ponowne użycie kodu i modelowanie hierarchii typów.</p>
+      </section>
+      <section>
+        <h3>Podstawy</h3>
+        <pre class="code-box"><code class="language-python">
+class Pojazd:
+    def ruszaj(self):
+        print("Pojazd rusza.")
 
 class Samochod(Pojazd):
-		def zatrzymaj(self):
-				print("Samochód zatrzymuje się.")
-	</code></pre>
-				</section>
-				<section>
-					<p>Dziedziczenie wielkrotne.</p>
-					<pre><code data-trim class="python">class PierwszaKlasaNadrzedna:
-		def metoda_pierwsza(self):
-			print("To jest metoda z pierwszej klasy nadrzędnej.")
-					
-class DrugaKlasaNadrzedna:
-		def metoda_druga(self):
-			print("To jest metoda z drugiej klasy nadrzędnej.")
-					
-class KlasaPotomna(PierwszaKlasaNadrzedna, DrugaKlasaNadrzedna):
-		def metoda_potomna(self):
-				print("To jest metoda z klasy potomnej.")
-					
-# Użycie klasy potomnej
-obiekt_potomny = KlasaPotomna()
-obiekt_potomny.metoda_pierwsza() # Dziedziczone z PierwszaKlasaNadrzedna
-obiekt_potomny.metoda_druga() # Dziedziczone z DrugaKlasaNadrzedna
-obiekt_potomny.metoda_potomna() # Lokalna metoda z KlasaPotomna
-</code></pre>
-				</section>
+    def zatrzymaj(self):
+        print("Samochód zatrzymuje się.")
 
+auto = Samochod()
+auto.ruszaj()
+auto.zatrzymaj()
+        </code></pre>
+      </section>
+      <section>
+        <h3>super()</h3>
+        <div class="grid-2">
+          <div>
+            <ul class="poplist">
+              <li class="fragment"><code>super()</code> wywołuje implementację z klasy bazowej.</li>
+              <li class="fragment">Przydatne w konstruktorach i metodach nadpisanych.</li>
+            </ul>
+          </div>
+          <div>
+            <pre class="code-box fragment"><code class="language-python">
+class Zwierze:
+    def __init__(self, imie):
+        self.imie = imie
 
+class Pies(Zwierze):
+    def __init__(self, imie, rasa):
+        super().__init__(imie)
+        self.rasa = rasa
+            </code></pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h3>Dziedziczenie wielokrotne</h3>
+        <pre class="code-box"><code class="language-python">
+class Pierwsza:
+    def metoda1(self): print("z Pierwsza")
 
+class Druga:
+    def metoda2(self): print("z Druga")
 
-				<section>
-					<p>Przesłanianie metod</p>
-					<pre><code data-trim class="python">class Kolo:
-		def info(self):
-				print("To jest kółko.")
-						
+class Potomna(Pierwsza, Druga):
+    pass
+
+obj = Potomna()
+obj.metoda1()
+obj.metoda2()
+        </code></pre>
+        <p class="tiny fragment">Python używa MRO (Method Resolution Order), żeby ustalić kolejność wyszukiwania metod.</p>
+      </section>
+      <section>
+        <h3>Przesłanianie metod (override)</h3>
+        <pre class="code-box"><code class="language-python">
+class Kolo:
+    def info(self):
+        print("To jest kółko.")
+
 class KoloKolorowe(Kolo):
-		def info(self):
-				print("To jest kolorowe kółko.")
-					</code></pre>
-				</section>
+    def info(self):
+        print("To jest kolorowe kółko.")
+        </code></pre>
+      </section>
+    </section>
 
-			</section>
+    <section data-background-gradient="linear-gradient(45deg, #1b1f3a, #8e44ad)">
+      <section>
+        <h2 class="chapter-title">5. Polimorfizm</h2>
+        <p class="fragment">Wspólny interfejs, różne implementacje.</p>
+        <p class="fragment">Kod kliencki nie musi znać konkretnego typu obiektu.</p>
+      </section>
+      <section>
+        <h3>Operator overloading</h3>
+        <pre class="code-box"><code class="language-python">
+class Punkt:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
 
-			<section>
-				<h2>Polimorfizm</h2>
-				<section>
-					<p>Przeładowywanie operatorów</p>
-					<pre><code data-trim class="python">class Punkt:
-		def __init__(self, x, y):
-				self.x = x
-				self.y = y
-					
-		def __add__(self, other):
-				return Punkt(self.x + other.x, self.y + other.y)
+    def __add__(self, other):
+        return Punkt(self.x + other.x, self.y + other.y)
+
 a = Punkt(1,2)
 b = Punkt(3,4)
 c = a + b
-</code></pre>
-				</section>
-				<section>
-					<h3>Wywołanie obiektu jak funkcji</h3>
-					<pre><code data-trim class="python">class Licznik:
-		def __init__(self):
-				self.liczba = 0
+        </code></pre>
+      </section>
+      <section>
+        <h3>Obiekt wywoływalny</h3>
+        <pre class="code-box"><code class="language-python">
+class Licznik:
+    def __init__(self):
+        self.liczba = 0
+    def __call__(self):
+        self.liczba += 1
+        return self.liczba
 
-		def __call__(self):
-				self.liczba += 1
-				return self.liczba
-
-# Użycie obiektu jak funkcji
 licznik = Licznik()
-print(licznik()) # Wywołanie obiektu jak funkcji
-print(licznik()) # Ponowne wywołanie
-
-</code></pre>
-				</section>
-			</section>
-			<section>
-				<h2>Hermetyzacja</h2>
-				<section>
-					<p>Ukrywanie danych</p>
-					<small>Publiczne, chronione i prywatne atrybuty.</small>
-					<pre><code data-trim class="python">class KontoBankowe:
-		def __init__(self, saldo):
-				self._saldo = saldo # chroniony
-				self.__haslo = "tajne" # prywatny
-</code></pre>
-				</section>
-				<section>
-					<p>Manglingu</p>
-					<small>Mechanizm manglingu polega na dodaniu przed nazwą metody prefiksu z nazwą klasy, co sprawia,
-						że staje się trudniejsze,
-						ale nie niemożliwe, dostęp do tych metod z zewnątrz klasy.</small>
-					<pre><code data-trim class="python">class KlasaPrzykladowa:
-		def __init__(self):
-				self.__prywatna_metoda()
-
-		def __prywatna_metoda(self):
-				print("To jest prywatna metoda.")
-
-# Utworzenie obiektu klasy
-obiekt = KlasaPrzykladowa()
-
-# Próba dostępu do prywatnej metody z zewnątrz klasy
-# To jest technicznie możliwe, ale zwykle nie jest zalecane.
-obiekt._KlasaPrzykladowa__prywatna_metoda()
-					</code></pre>
-				</section>
-				<section>
-					<p>Dekoratory w Pythonie</p>
-					<pre style="font-size: 16px;"><code  data-trim class="python">class Osoba:
-		def __init__(self, imie, nazwisko):
-				self.imie = imie
-				self.nazwisko = nazwisko
-
-		@property
-		def pelne_nazwisko(self):
-				return f"{self.imie} {self.nazwisko}"
-</code></pre>
-					<small>
-						<ul>
-							<li>
-								W języku Python dekorator to specjalny rodzaj funkcji, która umożliwia modyfikację
-								funkcji lub
-								metody, do której jest
-								przypisana. Dekoratory są używane do "ozdabiania" funkcji, dodawania dodatkowej
-								funkcjonalności
-								lub modyfikowania jej
-								działania bez zmiany samej funkcji.
-							</li>
-							<li>Wbudowane dekoratory to np. @staticmethod, @classmethod czy
-								@property.</li>
-							<li>Programiści mogą także tworzyć własne dekoratory w zależności od
-								potrzeb.</li>
-							<li>@property który umożliwia definiowanie tzw. właściwości
-								(properties) dla klas.
-								Właściwości pozwalają na dostęp do atrybutów obiektu tak, jakby były atrybutami klasy,
-								jednocześnie umożliwiając
-								bardziej zaawansowane operacje przy odczycie i zapisie wartości.</li>
-						</ul>
-
-					</small>
-					<small>
-
-					</small>
-				</section>
-			</section>
-
-			<section>
-				<h2>Przykład</h2>
-				<pre><code data-trim class="python">class Zwierze:
-		def __init__(self, imie):
-				self.imie = imie
-
-		def przedstaw_sie(self):
-				pass
+print(licznik()) # 1
+print(licznik()) # 2
+        </code></pre>
+      </section>
+      <section>
+        <h3>Polimorfizm „w praktyce”</h3>
+        <pre class="code-box"><code class="language-python">
+class Zwierze:
+    def mowa(self): raise NotImplementedError
 
 class Pies(Zwierze):
-		def przedstaw_sie(self):
-				print(f"Jestem psem o imieniu {self.imie}.")
+    def mowa(self): return "hau"
 
 class Kot(Zwierze):
-		def przedstaw_sie(self):
-				print(f"Jestem kotem o imieniu {self.imie}.")
+    def mowa(self): return "miau"
 
-</code></pre>
-				<small>W tym przykładzie utworzono klasy <b>Zwierze</b>, <b>Pies</b> i <b>Kot</b>, demonstrując
-					polimorfizm poprzez przesłanianie metody
-					<b>przedstaw_sie</b>.</small>
+def powiedz_cos(z: Zwierze):
+    print(z.mowa())  # działa dla różnych typów
 
+powiedz_cos(Pies()); powiedz_cos(Kot())
+        </code></pre>
+      </section>
+    </section>
 
-			</section>
-			<section>
-				<h2>Abstrakcja w pythonie</h2>
-				<section>
-									<small>W Pythonie, moduł abc (Abstract Base Classes) dostarcza mechanizmów do tworzenia klas abstrakcyjnych i metod
-										abstrakcyjnych. Klasa abstrakcyjna to klasa, która nie może być instancjonowana bezpośrednio, a metoda abstrakcyjna
-										to
-										metoda, która jest deklarowana, ale nie ma implementacji w samej klasie. Klasy dziedziczące po klasie abstrakcyjnej
-										muszą dostarczyć implementację dla wszystkich jej metod abstrakcyjnych.</small>
-				</section>
-				<section>
-					<pre style="font-size: 14px"><code style="max-height: 350px;" data-trim class="python">from abc import ABC, abstractmethod
-					
-class FiguraGeometryczna(ABC):
-		@abstractmethod
-		def oblicz_powierzchnie(self):
-				pass
+    <section data-background-gradient="linear-gradient(45deg, #2d1e2f, #c0392b)">
+      <section>
+        <h2 class="chapter-title">6. Hermetyzacja</h2>
+        <p class="fragment">Ukrywanie szczegółów implementacji; kontrolowany dostęp do stanu.</p>
+      </section>
+      <section>
+        <h3>Atrybuty: public/protected/private*</h3>
+        <div class="grid-2">
+          <div>
+            <ul class="poplist">
+              <li class="fragment"><code>name</code> — „publiczny” (konwencja).</li>
+              <li class="fragment"><code>_name</code> — „chroniony” (konwencja).</li>
+              <li class="fragment"><code>__name</code> — prywatny (name mangling).</li>
+            </ul>
+          </div>
+          <div>
+            <pre class="code-box fragment"><code class="language-python">
+class Konto:
+    def __init__(self, saldo):
+        self.saldo = saldo     # public (konwencja)
+        self._limit = 1000     # protected (konwencja)
+        self.__pin = "1234"    # private (mangling)
 
-class Kolo(FiguraGeometryczna):
-		def __init__(self, promien):
-				self.promien = promien
+print(dir(Konto(10)))  # zobacz _Konto__pin
+            </code></pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h3>@property — bezpieczny dostęp</h3>
+        <pre class="code-box"><code class="language-python">
+class Osoba:
+    def __init__(self, imie, nazwisko):
+        self._imie = imie
+        self._nazwisko = nazwisko
 
-		def oblicz_powierzchnie(self):
-				return 3.14 * self.promien ** 2
+    @property
+    def pelne_nazwisko(self):
+        return f"{self._imie} {self._nazwisko}"
+        </code></pre>
+      </section>
+    </section>
+    <section data-background-gradient="linear-gradient(45deg, #0f2027, #2c5364)">
+      <section>
+        <h2 class="chapter-title">7. Abstrakcja (ABC)</h2>
+        <p class="fragment">Klasy abstrakcyjne (moduł <code>abc</code>) definiują interfejs bez implementacji.</p>
+        <p class="fragment">Klasy pochodne muszą dostarczyć implementacje metod abstrakcyjnych.</p>
+      </section>
+      <section>
+        <pre class="code-box"><code class="language-python">
+from abc import ABC, abstractmethod
 
-class Prostokat(FiguraGeometryczna):
-		def __init__(self, dlugosc, szerokosc):
-				self.dlugosc = dlugosc
-				self.szerokosc = szerokosc
+class Figura(ABC):
+    @abstractmethod
+    def pole(self): ...
 
-		def oblicz_powierzchnie(self):
-				return self.dlugosc * self.szerokosc
+class Kolo(Figura):
+    def __init__(self, r): self.r = r
+    def pole(self): return 3.14159 * self.r**2
 
-# Przykład użycia
-kolo = Kolo(5)
-print(f"Powierzchnia koła: {kolo.oblicz_powierzchnie()}")
+class Prostokat(Figura):
+    def __init__(self, a, b): self.a, self.b = a, b
+    def pole(self): return self.a * self.b
+        </code></pre>
+      </section>
+    </section>
 
-prostokat = Prostokat(4, 6)
-print(f"Powierzchnia prostokąta: {prostokat.oblicz_powierzchnie()}")
-					</code></pre>
-					<small>
-						W tym przykładzie <b>FiguraGeometryczna</b> to klasa abstrakcyjna, która posiada jedną metodę abstrakcyjną
-						<b>oblicz_powierzchnie()</b>. Klasy <b>Kolo</b> i <b>Prostokat</b> dziedziczą po tej klasie abstrakcyjnej i
-						dostarczają implementację metody
-						<b>oblicz_powierzchnie()</b>.
-					
-						Jeśli klasa dziedzicząca nie dostarczy implementacji metody abstrakcyjnej, Python wygeneruje błąd <b>TypeError</b>
-						podczas
-						próby instancjonowania tej klasy.
-					</small>
+    <section data-background-gradient="linear-gradient(45deg, #1c1c1c, #f39c12)">
+      <section>
+        <h2 class="chapter-title">8. Iteratory i generatory</h2>
+        <p class="fragment">„Jak przechodzić po danych” — kluczowe w Pythonie.</p>
+      </section>
+      <section>
+        <h3>Iterator (prosty)</h3>
+        <pre class="code-box"><code class="language-python">
+class Licznik:
+    def __init__(self, n): self.n = n
+    def __iter__(self): return self
+    def __next__(self):
+        if self.n <= 0: raise StopIteration
+        self.n -= 1
+        return self.n
+        </code></pre>
+      </section>
+      <section>
+        <h3>Generator</h3>
+        <pre class="code-box"><code class="language-python">
+def licznik(n):
+    while n > 0:
+        n -= 1
+        yield n
 
-				</section>
+for x in licznik(3):
+    print(x)
+        </code></pre>
+      </section>
+    </section>
 
-			</section>
-		</div>
-	</div>
+    <section data-background-gradient="linear-gradient(45deg, #1b2735, #090a0f)">
+      <section>
+        <h2 class="chapter-title">9. Wyjątki a OOP</h2>
+        <p class="fragment">Błędy są obiektami; tworzymy własne typy wyjątków.</p>
+      </section>
+      <section>
+        <h3>Własny wyjątek domenowy</h3>
+        <pre class="code-box"><code class="language-python">
+class BladSaldo(Exception): pass
 
-	<script src="dist/reveal.js"></script>
-	<script src="plugin/zoom/zoom.js"></script>
-	<script src="plugin/notes/notes.js"></script>
-	<script src="plugin/search/search.js"></script>
-	<script src="plugin/markdown/markdown.js"></script>
-	<script src="plugin/highlight/highlight.js"></script>
-	<script>
+class Konto:
+    def __init__(self, saldo): self.saldo = saldo
+    def wyplac(self, kwota):
+        if kwota > self.saldo:
+            raise BladSaldo("Za mało środków!")
+        self.saldo -= kwota
+        </code></pre>
+      </section>
+    </section>
+    <section data-background-gradient="linear-gradient(45deg, #2b5876, #4e4376)">
+      <section>
+        <h2 class="chapter-title">10. Wzorzec: Singleton (Python)</h2>
+        <p class="fragment">Jedna instancja w całej aplikacji — ostrożnie i świadomie.</p>
+      </section>
+      <section>
+        <h3>Minimalna implementacja</h3>
+        <pre class="code-box"><code class="language-python">
+class Singleton:
+    _inst = None
+    def __new__(cls, *a, **k):
+        if cls._inst is None:
+            cls._inst = super().__new__(cls)
+        return cls._inst
 
-		// Also available as an ES module, see:
-		// https://revealjs.com/initialization/
-		Reveal.initialize({
-			controls: true,
-			progress: true,
-			center: true,
-			hash: true,
+a = Singleton()
+b = Singleton()
+print(a is b)  # True
+        </code></pre>
+      </section>
+    </section>
+    <section data-background-gradient="linear-gradient(45deg, #3a3a7a, #6754e8)">
+      <h2>Podsumowanie</h2>
+      <ul class="poplist">
+        <li class="fragment">W Pythonie <b>wszystko</b> jest obiektem.</li>
+        <li class="fragment">Klasy łączą <b>dane</b> i <b>zachowania</b>; hermetyzuj stan.</li>
+        <li class="fragment">Dziedziczenie + polimorfizm = elastyczny i rozszerzalny kod.</li>
+        <li class="fragment">ABC, iteratory/generatory i wzorce porządkują projekt.</li>
+      </ul>
+    </section>
 
-			// Learn about plugins: https://revealjs.com/plugins/
-			plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
-		});
+    </div>
+  </div>
 
-	</script>
-
+  <script src="dist/reveal.js"></script>
+  <script src="plugin/zoom/zoom.js"></script>
+  <script src="plugin/notes/notes.js"></script>
+  <script src="plugin/search/search.js"></script>
+  <script src="plugin/markdown/markdown.js"></script>
+  <script src="plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      controls: true,
+      progress: true,
+      center: true,
+      hash: true,
+      plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+    });
+  </script>
 </body>
-
 </html>
